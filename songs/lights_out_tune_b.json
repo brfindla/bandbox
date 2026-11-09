@@ -1,0 +1,246 @@
+{
+ "title": "lights_out - tune B (climb)",
+ "tempo": 160,
+ "beats_per_bar": 4,
+ "swing": 0,
+ "key": "E",
+ "count_in_bars": 1,
+ "seed": 1,
+ "style": "trucker",
+ "grit": 0.5,
+ "tracks": {
+  "electric": {
+   "instrument": "clean_guitar",
+   "part": "comp",
+   "style": "boom_chick",
+   "pan": -0.35,
+   "drive": 0.5
+  },
+  "acoustic": {
+   "instrument": "steel_guitar",
+   "part": "comp",
+   "style": "strum",
+   "pan": 0.35,
+   "level_db": -6
+  },
+  "bass": {
+   "instrument": "upright_bass",
+   "part": "bass",
+   "style": "root_fifth"
+  },
+  "drums": {
+   "instrument": "gogodze_kit",
+   "part": "drums",
+   "style": "train",
+   "drive": 0.35
+  },
+  "lead": {
+   "instrument": "harmonica",
+   "part": "lead",
+   "pan": 0.2,
+   "drive": 0.15
+  }
+ },
+ "sections": [
+  {
+   "name": "song",
+   "chords": [
+    "E",
+    "E",
+    "E",
+    "E",
+    "E",
+    "E",
+    "A",
+    "A",
+    "B7",
+    "B7",
+    "E",
+    "E"
+   ],
+   "lyrics": [
+    "Lights out, and it's runnin'.",
+    "Lights out, and it's runnin'.",
+    "Lights out, and it's runnin'.",
+    "It does the job and writes it down,",
+    "what it did, and why, and what it cost.",
+    "I'm asleep, and nothin's lost."
+   ],
+   "lead": {
+    "lead": [
+     [
+      "E4",
+      1
+     ],
+     [
+      "E4",
+      1.0
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "A4",
+      0.5
+     ],
+     [
+      "G#4",
+      1.0
+     ],
+     [
+      "E4",
+      4.0
+     ],
+     [
+      "E4",
+      1
+     ],
+     [
+      "G#4",
+      1.0
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "B4",
+      0.5
+     ],
+     [
+      "B4",
+      1.0
+     ],
+     [
+      "E4",
+      4.0
+     ],
+     [
+      "G#4",
+      1
+     ],
+     [
+      "G#4",
+      1.0
+     ],
+     [
+      "B4",
+      0.5
+     ],
+     [
+      "C#5",
+      0.5
+     ],
+     [
+      "B4",
+      1.0
+     ],
+     [
+      "G#4",
+      3.5
+     ],
+     [
+      "A4",
+      0.5
+     ],
+     [
+      "A4",
+      1.5
+     ],
+     [
+      "C#5",
+      0.5
+     ],
+     [
+      "C#5",
+      1.5
+     ],
+     [
+      "D#5",
+      0.5
+     ],
+     [
+      "E5",
+      1.5
+     ],
+     [
+      "C#5",
+      0.5
+     ],
+     [
+      "A4",
+      2
+     ],
+     [
+      "A4",
+      0.5
+     ],
+     [
+      "B4",
+      0.5
+     ],
+     [
+      "B4",
+      0.5
+     ],
+     [
+      "C#5",
+      0.5
+     ],
+     [
+      "B4",
+      0.5
+     ],
+     [
+      "D#5",
+      0.5
+     ],
+     [
+      "D#5",
+      0.5
+     ],
+     [
+      "D#5",
+      0.5
+     ],
+     [
+      "A4",
+      3.0
+     ],
+     [
+      "B4",
+      0.5
+     ],
+     [
+      "C#5",
+      0.5
+     ],
+     [
+      "B4",
+      1.5
+     ],
+     [
+      "B4",
+      0.5
+     ],
+     [
+      "B4",
+      1.0
+     ],
+     [
+      "G#4",
+      1.0
+     ],
+     [
+      "E4",
+      4
+     ]
+    ]
+   }
+  }
+ ],
+ "form": [
+  "song"
+ ]
+}

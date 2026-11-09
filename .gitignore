@@ -1,0 +1,5 @@
+.venv/
+vendor/
+out/
+__pycache__/
+songs/e2e_*.json

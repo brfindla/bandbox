@@ -1,0 +1,310 @@
+{
+ "title": "Lights Out (v3, fast talk, with turnaround)",
+ "note": "Original tune for the Dark Factory road song. Verses are spoken over the band; only the chorus is sung (the harmonica plays the sung line here). This version adds an original 2-bar harmonica turnaround (E | B7) after each chorus, leading back into the verse; plain E major scale steps, written 2026-11-08.",
+ "tempo": 160,
+ "beats_per_bar": 4,
+ "key": "E",
+ "count_in_bars": 1,
+ "tracks": {
+  "guitar": {
+   "instrument": "steel_guitar",
+   "part": "comp",
+   "style": "boom_chick",
+   "pan": -0.3,
+   "level_db": -2
+  },
+  "bass": {
+   "instrument": "upright_bass",
+   "part": "bass",
+   "style": "root_fifth",
+   "level_db": 0
+  },
+  "drums": {
+   "instrument": "brush_kit",
+   "part": "drums",
+   "style": "train",
+   "level_db": -3
+  },
+  "harmonica": {
+   "instrument": "harmonica",
+   "part": "lead",
+   "pan": 0.25,
+   "level_db": -1
+  }
+ },
+ "sections": [
+  {
+   "name": "verse",
+   "chords": [
+    "E",
+    "%",
+    "%",
+    "%",
+    "A",
+    "%",
+    "E",
+    "%",
+    "B7",
+    "%",
+    "%",
+    "%",
+    "E",
+    "%",
+    "%",
+    "%"
+   ]
+  },
+  {
+   "name": "chorus",
+   "chords": [
+    "E",
+    "%",
+    "E",
+    "%",
+    "A",
+    "%",
+    "E",
+    "%",
+    "B7",
+    "%",
+    "E",
+    "%"
+   ],
+   "lead": {
+    "harmonica": [
+     [
+      "B4",
+      1
+     ],
+     [
+      "B4",
+      1
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "F#4",
+      1
+     ],
+     [
+      "E4",
+      4
+     ],
+     [
+      "B4",
+      1
+     ],
+     [
+      "B4",
+      1
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "F#4",
+      1
+     ],
+     [
+      "G#4",
+      4
+     ],
+     [
+      "E4",
+      0.5
+     ],
+     [
+      "E4",
+      0.5
+     ],
+     [
+      "E4",
+      0.5
+     ],
+     [
+      "A4",
+      1
+     ],
+     [
+      "A4",
+      0.5
+     ],
+     [
+      "A4",
+      1
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "A4",
+      3.5
+     ],
+     [
+      "E4",
+      0.5
+     ],
+     [
+      "E4",
+      0.5
+     ],
+     [
+      "G#4",
+      1
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "G#4",
+      1
+     ],
+     [
+      "F#4",
+      0.5
+     ],
+     [
+      "F#4",
+      0.5
+     ],
+     [
+      "F#4",
+      0.5
+     ],
+     [
+      "E4",
+      3
+     ],
+     [
+      "D#4",
+      0.5
+     ],
+     [
+      "D#4",
+      0.5
+     ],
+     [
+      "F#4",
+      1
+     ],
+     [
+      "F#4",
+      0.5
+     ],
+     [
+      "A4",
+      1
+     ],
+     [
+      "A4",
+      0.5
+     ],
+     [
+      "B4",
+      4
+     ],
+     [
+      "B4",
+      1
+     ],
+     [
+      "B4",
+      1
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "F#4",
+      1
+     ],
+     [
+      "E4",
+      4
+     ]
+    ]
+   }
+  },
+  {
+   "name": "turnaround",
+   "chords": [
+    "E",
+    "B7"
+   ],
+   "lead": {
+    "harmonica": [
+     [
+      "E4",
+      0.5
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "B4",
+      1
+     ],
+     [
+      "A4",
+      0.5
+     ],
+     [
+      "G#4",
+      0.5
+     ],
+     [
+      "F#4",
+      1
+     ],
+     [
+      "D#4",
+      0.5
+     ],
+     [
+      "F#4",
+      0.5
+     ],
+     [
+      "A4",
+      0.5
+     ],
+     [
+      "F#4",
+      0.5
+     ],
+     [
+      "B4",
+      2
+     ]
+    ]
+   }
+  }
+ ],
+ "form": [
+  "verse",
+  "chorus",
+  "turnaround",
+  "verse",
+  "chorus",
+  "turnaround"
+ ]
+}
