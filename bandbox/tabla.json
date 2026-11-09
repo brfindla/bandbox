@@ -1,0 +1,42 @@
+{
+  "_about": "Tabla data for bandbox: talas (rhythm cycles), and what each bol (spoken stroke syllable) plays. Data, not code: correct it here. Not yet checked by a tabla player; corrections welcome.",
+  "_talas": "beats = matras in one cycle (avartan). vibhag = the cycle's sections. marks = the clap sign at the start of each vibhag: X = sam (the first beat, clapped), a number = tali (clapped), 0 = khali (a wave, empty). theka = the standard basic bols of the cycle, '|' between vibhags.",
+  "talas": {
+    "teentaal": {"beats": 16, "vibhag": [4, 4, 4, 4], "marks": ["X", "2", "0", "3"],
+                 "theka": "dha dhin dhin dha | dha dhin dhin dha | dha tin tin ta | ta dhin dhin dha",
+                 "about": "Teentaal (tintal, trital): 16 beats, 4+4+4+4, the most common tala in Hindustani music. The third vibhag is khali: after its first beat the bayan drops out (dhin becomes tin). Some teachers write that vibhag na tin tin ta."},
+    "keherwa":  {"beats": 8, "vibhag": [4, 4], "marks": ["X", "0"],
+                 "theka": "dha ge na ti | na ka dhi na",
+                 "about": "Keherwa: 8 beats, 4+4. Light classical, film and folk songs."},
+    "dadra":    {"beats": 6, "vibhag": [3, 3], "marks": ["X", "0"],
+                 "theka": "dha dhi na | dha tu na",
+                 "about": "Dadra: 6 beats, 3+3. Light classical (dadra, ghazal, bhajan)."},
+    "rupak":    {"beats": 7, "vibhag": [3, 2, 2], "marks": ["0", "1", "2"], "_marks": "conventions vary: some books number rupak's talis 2 and 3",
+                 "theka": "tin tin na | dhi na | dhi na",
+                 "about": "Rupak: 7 beats, 3+2+2. Unusual in starting on khali: its first beat (sam) is a wave, not a clap."}
+  },
+  "_strokes": "The seven sounds bandbox has a sample for. bayan = the left-hand bass drum, dayan = the right-hand treble drum. damps = a closed stroke that stops the same drum's ringing; open strokes ring on into each other. gain = level against the loudest stroke (the samples are all normalised).",
+  "strokes": {
+    "ge":  {"drum": "bayan", "damps": false, "gain": 1.0, "about": "open, resonant bass stroke (ga, ghe)"},
+    "ke":  {"drum": "bayan", "damps": true, "gain": 0.6, "about": "closed, flat-hand bass slap (ka, ki, kat)"},
+    "na":  {"drum": "dayan", "damps": false, "gain": 1.0, "about": "rim stroke, ringing (ta)"},
+    "tin": {"drum": "dayan", "damps": false, "gain": 0.9, "about": "open stroke on the edge of the black spot, ringing"},
+    "tun": {"drum": "dayan", "damps": false, "gain": 0.9, "about": "open stroke in the centre, long ring (tu)"},
+    "te":  {"drum": "dayan", "damps": true, "gain": 0.7, "about": "closed centre stroke, dry (ti, the ti in tirakita)"},
+    "re":  {"drum": "dayan", "damps": true, "gain": 0.7, "about": "closed stroke with the other fingers, dry (ra)"}
+  },
+  "_bols": "Each bol plays one stroke, or a bayan and a dayan stroke together.",
+  "bols": {
+    "dha":  ["ge", "na"],  "dhin": ["ge", "tin"], "dhi": ["ge", "tin"], "dhit": ["ge", "te"],
+    "dhun": ["ge", "tun"], "dhu": ["ge", "tun"],
+    "na":   ["na"],  "ta":  ["na"],  "tin": ["tin"], "tun": ["tun"], "tu": ["tun"],
+    "ti":   ["te"],  "te":  ["te"],  "tit": ["te"],  "ra":  ["re"],  "re": ["re"],
+    "ge":   ["ge"],  "ga":  ["ge"],  "ghe": ["ge"],  "gi":  ["ge"],
+    "ke":   ["ke"],  "ka":  ["ke"],  "ki":  ["ke"],  "kat": ["ke"]
+  },
+  "_compounds": "Bols spoken as one word that are played as several quick strokes, sharing their beat evenly.",
+  "compounds": {
+    "tirakita": ["ti", "ra", "ki", "ta"], "trkt": ["ti", "ra", "ki", "ta"],
+    "dhage": ["dha", "ge"], "tete": ["te", "te"], "dhati": ["dha", "ti"], "tita": ["ti", "ta"]
+  }
+}

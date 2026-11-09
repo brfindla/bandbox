@@ -15,7 +15,7 @@ import pyloudnorm
 import soundfile as sf
 from scipy.signal import lfilter
 
-from . import sampler, score as sc
+from . import sampler, score as sc, tabla
 from .soundfont import presets
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -50,13 +50,16 @@ def render_stems(s, out_dir, soundfont="generaluser"):
     stems = out_dir / "stems"; stems.mkdir(parents=True, exist_ok=True)
     sf2 = soundfont_path(soundfont)
     have = {(b, p) for b, p, _ in presets(sf2)}        # FluidSynth would substitute silently
-    missing = sorted({t["instrument"] for t in s["tracks"].values() if sc.INSTRUMENTS[t["instrument"]] not in have})
+    missing = sorted({t["instrument"] for t in s["tracks"].values()
+                      if sc.INSTRUMENTS[t["instrument"]] and sc.INSTRUMENTS[t["instrument"]] not in have})
     if missing:
         raise ValueError(f"soundfont {soundfont} has no preset for {missing}; pick another soundfont or instrument")
     jobs = {name: stems / f"{name}.wav" for name in mids}
     def one(n):
         kit = s["tracks"][n]["instrument"]
-        if kit in sampler.KITS:
+        if kit == "tabla":
+            tabla.render_track(mids[n], jobs[n], s.get("key"), s.get("seed", 1), s["tracks"][n].get("reverb", .15))
+        elif kit in sampler.KITS:
             sampler.render_track(mids[n], jobs[n], kit, lambda m, w: _fluidsynth(sf2, m, w))
         else:
             _fluidsynth(sf2, mids[n], jobs[n])
@@ -84,7 +87,7 @@ def _limit(x, ceiling=0.89, block=256, release_s=0.08):
 
 # Starting balance by role, in LUFS per stem, before level_db. Without it, swapping a
 # harmonica for a whistle moved the lead 11 dB (sample banks are not level-matched).
-ROLE_LUFS = {"lead": -20.0, "bass": -23.0, "comp": -24.0, "drums": -25.0}
+ROLE_LUFS = {"lead": -20.0, "bass": -23.0, "comp": -24.0, "drums": -25.0, "tabla": -21.0}
 
 
 def drive(x, amount):
@@ -170,6 +173,10 @@ def render(s, out_dir, name="mix", soundfont="generaluser", mute=(), levels_db=N
     dv = {k: t.get("drive", 0.0) for k, t in s["tracks"].items()}
     rep = mix(use, Path(out_dir) / name, lv, pn, target_lufs, roles=roles, drives=dv)
     rep["stems"] = {k: str(v) for k, v in stems.items()}
+    if any(t["part"] == "tabla" for t in s["tracks"].values()):
+        bols = Path(out_dir) / "bols.html"
+        bols.write_text(tabla.sheet(s, sc.arrangement(s)), "utf-8", newline="\n")
+        rep["bols_sheet"] = str(bols)
     rep["soundfont"] = soundfont
     (Path(out_dir) / f"{name}.json").write_text(json.dumps({"levels_db": lv, "pans": pn, "drives": dv, "mute": list(mute), "roles": roles,
                                                             **rep}, indent=2), "utf-8")

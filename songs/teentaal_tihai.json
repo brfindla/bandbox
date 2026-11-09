@@ -1,0 +1,21 @@
+{
+  "title": "Teentaal with a tihai",
+  "note": "Teentaal theka at medium tempo for four cycles, then a cycle that starts the theka and plays a tihai: the phrase 'tirakita dhin na dha' three times with a one-beat gap, so its last dha falls on sam, beat 1 of the next cycle. A sitar plays a tanpura-like drone on D; the tabla's dayan is tuned to D. Not yet checked by a tabla player.",
+  "tempo": 112,
+  "tala": "teentaal",
+  "key": "D",
+  "count_in_bars": 0,
+  "seed": 3,
+  "tracks": {
+    "tabla": {"instrument": "tabla", "part": "tabla", "style": "theka", "reverb": 0.12},
+    "drone": {"instrument": "sitar", "part": "comp", "style": "drone", "level_db": -6, "reverb": 0.45}
+  },
+  "sections": [
+    {"name": "theka", "chords": ["D", "%", "%", "%"]},
+    {"name": "tihai", "chords": ["D"],
+     "bols": {"tabla": "dha dhin dhin tirakita | dhin na dha - | tirakita dhin na dha | - tirakita dhin na"}},
+    {"name": "sam", "chords": ["D"],
+     "bols": {"tabla": "dha - - - | - - - - | - - - - | - - - -"}}
+  ],
+  "form": ["theka", "tihai", "sam"]
+}

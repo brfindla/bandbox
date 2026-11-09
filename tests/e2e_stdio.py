@@ -60,6 +60,16 @@ async def main():
         out = json.loads(text)
         assert not res.is_error and len(out["tunes"]) == 2 and Path(out["sheet"]).exists()
         assert all(Path(t["mp3"]).exists() for t in out["tunes"])
+
+        res, text = await call("arrange", name="e2e_teentaal", style="teentaal", key="D")
+        out = json.loads(text)
+        assert not res.is_error and Path(out["render"]["mp3"]).exists() and Path(out["render"]["bols_sheet"]).exists()
+        tihai = json.loads((ROOT / "songs" / "teentaal_tihai.json").read_text("utf-8"))
+        bad = json.loads(json.dumps(tihai)); bad["sections"][1]["bols"]["tabla"] = "dha dhom"
+        res, text = await call("write_score", name="e2e_bad_bols", score=bad)
+        assert res.is_error and "dhom" in text, "an unknown bol must be refused by name"
+        res, _ = await call("write_score", name="e2e_tihai", score=tihai)
+        assert not res.is_error
         print("E2E PASS")
 
 

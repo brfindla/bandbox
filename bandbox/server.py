@@ -15,7 +15,7 @@ from pathlib import Path
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 
-from . import beat, hum, lyrics as lyrics_mod, render as rd, sampler, score as sc, styles
+from . import beat, hum, lyrics as lyrics_mod, render as rd, sampler, score as sc, styles, tabla
 from .soundfont import presets
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,7 +27,9 @@ mcp = MCPServer("bandbox", instructions=(
     "list_styles, pick the closest style, then arrange (it writes and renders the track). From lyrics: "
     "set_lyrics shows where each syllable lands; melody_options writes up to three tunes for the words "
     "and renders each, with a lyric sheet. For full control write a score yourself with write_score and "
-    "render it. mix re-balances the last render without re-rendering. Everything is rendered to files."))
+    "render it. mix re-balances the last render without re-rendering. Everything is rendered to files. "
+    "Tabla: the teentaal, keherwa, dadra and rupak styles play a theka; to write your own groove, give a "
+    "score a 'tala' and a tabla track, and write each section's 'bols' (list_instruments lists them)."))
 
 
 def _plain_errors(fn):
@@ -144,8 +146,17 @@ def list_instruments(soundfont: str = "generaluser") -> dict:
     return {
         "soundfonts": list(rd.SOUNDFONTS),
         "instruments": {k: (sampler.KITS[k]["credit"] + ("" if sampler.available(k) else " - NOT INSTALLED")
-                            if k in sampler.KITS else have.get(v, "MISSING in this soundfont"))
+                            if k in sampler.KITS else
+                            "sampled tabla" + ("" if tabla.available() else " - NOT INSTALLED") if k == "tabla"
+                            else have.get(v, "MISSING in this soundfont"))
                         for k, v in sc.INSTRUMENTS.items()},
+        "talas": {k: {"beats": v["beats"], "vibhag": v["vibhag"], "marks": v["marks"], "theka": v["theka"]}
+                  for k, v in tabla.TALAS.items()},
+        "tabla_bols": {"bols": {k: "+".join(v) for k, v in tabla.BOLS.items()},
+                       "compounds": {k: " ".join(v) for k, v in tabla.COMPOUNDS.items()},
+                       "strokes": {k: f"{v['drum']}: {v['about']}" for k, v in tabla.STROKES.items()},
+                       "write": "one word per beat; 'dha.ge' splits a beat; '-' is silence; '|' between "
+                                "vibhags (checked against the tala). Not yet checked by a tabla player."},
         "parts_and_styles": sc.PARTS,
         "chord_qualities": list(sc.QUALITIES),
         "notes": "Notes are names like E4, F#3, Bb2 (C4 = middle C) or 'r' for a rest; 'E4+G#4' plays two at once.",
@@ -160,10 +171,12 @@ def write_score(name: str, score: dict | str) -> dict:
     Format (JSON):
     {"title": "...", "tempo": 160, "beats_per_bar": 2|3|4 (quarter-note beats; waltz styles need 3),
      "count_in_bars": 1 (played on the drums track), "swing": 0 (0-1), "seed": 1,
-     "tracks": {"<track>": {"instrument": "steel_guitar", "part": "comp|bass|drums|lead",
+     "tala": "teentaal" (optional: a rhythm cycle; then each chord entry is one whole cycle),
+     "tracks": {"<track>": {"instrument": "steel_guitar", "part": "comp|bass|drums|lead|tabla",
                 "style": "<see list_instruments>", "level_db": 0, "pan": -1..1, "reverb": 0..1, "drive": 0..1 (grit), "legato": 0.92}},
      "sections": [{"name": "verse", "chords": ["E", "%", "A E", ...],   # one entry per bar; "A E" splits a bar; "%" repeats
                    "lead": {"<lead track>": [["B4", 1], ["G#4", 0.5], ["r", 0.5], ...]},   # [note, beats(, velocity)]
+                   "bols": {"<tabla track>": "dha dhin dhin dha | ..."},   # repeats to fill the section
                    "styles": {"<track>": "<style for this section>"}, "mute": ["<track>"], "repeat": 1}],
      "form": ["verse", "chorus", ...]}   # optional play order by section name
     Comp, bass and drum tracks play the chords by style; lead tracks play the notes given, starting at

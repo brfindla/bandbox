@@ -11,6 +11,8 @@ from pathlib import Path
 
 import mido
 
+from . import tabla
+
 PPQ = 480
 
 # Friendly name -> (bank, program). General MIDI numbering; drum kits are bank 128.
@@ -30,12 +32,16 @@ INSTRUMENTS = {
     # sampled kits (bandbox/sampler.py); the bank/program is the General MIDI kit used for the
     # hits they have no sample for (ride, crash, tambourine)
     "gogodze_kit": (128, 0), "gogodze_retro_kit": (128, 0),
+    "sitar": (0, 104), "shanai": (0, 111),
+    # sampled tabla (bandbox/tabla.py); the only instrument for the tabla part, no synth preset
+    "tabla": None,
 }
 PARTS = {
-    "comp": ["boom_chick", "strum", "train", "sustain", "arpeggio", "waltz"],
+    "comp": ["boom_chick", "strum", "train", "sustain", "arpeggio", "waltz", "drone"],
     "bass": ["root_fifth", "walking", "root", "root_eighths", "waltz"],
     "drums": ["train", "boom_chick", "rock", "shuffle", "brush_swing", "waltz", "none"],
     "lead": [],
+    "tabla": ["theka", "none"],
 }
 QUALITIES = {"": (0, 4, 7), "m": (0, 3, 7), "7": (0, 4, 7, 10), "m7": (0, 3, 7, 10),
              "maj7": (0, 4, 7, 11), "6": (0, 4, 7, 9), "m6": (0, 3, 7, 9), "9": (0, 4, 7, 10, 14),
@@ -105,9 +111,17 @@ def check(s):
     num = (int, float)
     if not isinstance(s.get("tempo"), num) or not 30 <= s["tempo"] <= 300:
         errs.append("tempo: a number of beats per minute, 30-300")
-    bpb = s.setdefault("beats_per_bar", 4)
-    if bpb not in (2, 3, 4):
-        errs.append("beats_per_bar: 2, 3 or 4 (quarter-note beats; write 6/8 as 2 with swing, or 3)")
+    tala = s.get("tala")
+    if tala is not None and (not isinstance(tala, str) or tala not in tabla.TALAS):
+        errs.append(f"tala {tala!r} unknown; talas: {list(tabla.TALAS)}")
+        tala = None
+    bpb = s.setdefault("beats_per_bar", tabla.TALAS[tala]["beats"] if tala else 4)
+    if tala and bpb != tabla.TALAS[tala]["beats"]:
+        errs.append(f"beats_per_bar: {tala} is a cycle of {tabla.TALAS[tala]['beats']} beats; each 'bar' "
+                    f"(one chord entry) is one cycle, so set {tabla.TALAS[tala]['beats']} or leave it out")
+    elif not tala and bpb not in (2, 3, 4):
+        errs.append("beats_per_bar: 2, 3 or 4 (quarter-note beats; write 6/8 as 2 with swing, or 3), "
+                    "or set a tala for a longer cycle")
     if not isinstance(s.get("count_in_bars", 0), int) or not 0 <= s.get("count_in_bars", 0) <= 4:
         errs.append("count_in_bars: a whole number 0-4")
     if s.get("count_in_bars", 0) and not any(isinstance(t, dict) and t.get("part") == "drums"
@@ -125,6 +139,12 @@ def check(s):
         if t.get("instrument") not in INSTRUMENTS:
             errs.append(f"track {name}: instrument {t.get('instrument')!r} unknown (see list_instruments)")
         part = t.get("part")
+        if (part == "tabla") != (t.get("instrument") == "tabla"):
+            errs.append(f"track {name}: the tabla part plays instrument 'tabla', and 'tabla' plays only the tabla part")
+        elif part == "tabla" and t.get("style", "theka") == "theka" and not tala and not all(
+                isinstance(x, dict) and (name in (x.get("bols") or {}) or name in (x.get("mute") or []))
+                for x in s.get("sections") or [None]):
+            errs.append(f"track {name}: style 'theka' needs a tala; set tala, or give the bols in each section")
         if part not in PARTS:
             errs.append(f"track {name}: part must be one of {list(PARTS)}")
         elif part != "lead" and t.get("style", PARTS[part][0]) not in PARTS[part]:
@@ -170,6 +190,21 @@ def check(s):
                 errs.append(f"{label}: style {styl!r} not valid for {tname} ({t['part']})")
             elif styl == "waltz" and bpb != 3:
                 errs.append(f"{label}: waltz styles need beats_per_bar 3")
+            elif styl == "theka" and not tala and tname not in (sec.get("bols") or {}):
+                errs.append(f"{label}: style 'theka' for {tname} needs a tala; set tala, or give this section's bols")
+        if not isinstance(sec.get("bols") or {}, dict):
+            errs.append(f"{label}: bols is an object of tabla track -> bol text")
+        for tname, text in (sec.get("bols") if isinstance(sec.get("bols"), dict) else {}).items():
+            if tracks.get(tname, {}).get("part") != "tabla":
+                errs.append(f"{label}: bols for {tname!r}, which is not a tabla track")
+                continue
+            try:
+                beats, _ = tabla.parse(text, tala)
+                if (len(chords) * bpb) % beats:
+                    raise tabla.BolError(f"they last {beats} beats; the section is {len(chords) * bpb}, "
+                                         f"which they must divide (they repeat to fill it)")
+            except tabla.BolError as e:
+                errs.append(f"{label}: bols for {tname}: {e}")
         for tname in sec.get("mute") or []:
             if tname not in tracks:
                 errs.append(f"{label}: mute names unknown track {tname!r}")
@@ -273,6 +308,11 @@ def comp_bar(style, chords_in_bar, bpb):
     elif style == "waltz":
         for b in range(1, bpb):
             ev.append((b, .5, chord_at(b)[1:], 74))
+    elif style == "drone":                            # tanpura-like: low fifth, key note twice, low key note
+        step = bpb / 4
+        for k, iv in enumerate((-5, 0, 0, -12)):
+            root = parse_chord(chords_in_bar[min(int(k * step // per), len(chords_in_bar) - 1)])[0]
+            ev.append((k * step, step * 1.9, [48 + root + iv], (70, 64, 62, 72)[k]))
     return ev
 
 
@@ -393,7 +433,7 @@ def to_midi(s, out_dir, tail_beats=4):
     paths = {}
     drum_track = next((n for n, t in s["tracks"].items() if t["part"] == "drums"), None)
     for name, t in s["tracks"].items():
-        bank, prog = INSTRUMENTS[t["instrument"]]
+        bank, prog = INSTRUMENTS[t["instrument"]] or (0, 0)
         part = t["part"]
         channel = 9 if bank == 128 else 0
         notes = []
@@ -404,7 +444,12 @@ def to_midi(s, out_dir, tail_beats=4):
             bars = bar_chords(sec["chords"])
             if name not in (sec.get("mute") or []):
                 style = (sec.get("styles") or {}).get(name, t.get("style", PARTS[part][0] if PARTS[part] else None))
-                if part == "lead":
+                if part == "tabla":
+                    text = (sec.get("bols") or {}).get(name) or (tabla.TALAS[s["tala"]]["theka"] if style == "theka" else None)
+                    if text:
+                        notes += tabla.section_notes(text, s.get("tala"), bpb, len(bars), beat0, rng,
+                                                     lambda b: _swing(b, swing))
+                elif part == "lead":
                     b = beat0
                     for ev in (sec.get("lead") or {}).get(name, []):
                         vel = ev[2] if len(ev) > 2 else 90

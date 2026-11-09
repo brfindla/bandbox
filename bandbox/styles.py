@@ -9,7 +9,7 @@ import copy
 import math
 import re
 
-from . import sampler, score as sc
+from . import sampler, score as sc, tabla
 
 SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 FLAT = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
@@ -84,6 +84,24 @@ STYLES = {
 }
 
 
+def _tala_recipe(name, tempo):
+    t = tabla.TALAS[name]
+    return {"about": f"{t['about']} Tabla plays the theka '{t['theka']}' (bandbox's tabla is not yet "
+                     "checked by a tabla player); a sitar plays a tanpura-like drone on the key note.",
+            "tala": name, "theka": t["theka"],
+            "tempo": tempo, "beats_per_bar": t["beats"], "swing": 0, "grit": 0,
+            "tracks": {"tabla": T("tabla", "tabla", "theka"),
+                       "drone": T("sitar", "comp", "drone", level_db=-5, reverb=.45)},
+            "sections": {"theka": "I % % %"}, "form": ["theka"]}
+
+
+# Hindustani talas: one 'bar' (chord entry) is one cycle. Tempo = matras per minute.
+STYLES.update({"teentaal": _tala_recipe("teentaal", [60, 200, 112]),
+               "keherwa": _tala_recipe("keherwa", [70, 180, 104]),
+               "dadra": _tala_recipe("dadra", [70, 200, 126]),
+               "rupak": _tala_recipe("rupak", [60, 180, 100])})
+
+
 def key_tonic(key):
     m = re.fullmatch(r"([A-G])([#b]?)", key or "")
     if not m:
@@ -122,7 +140,8 @@ def list_styles():
                 "beats_per_bar": v["beats_per_bar"], "swing": v["swing"], "grit": v["grit"],
                 "tracks": {n: {x: y for x, y in t.items() if x in ("instrument", "part", "style")}
                            for n, t in v["tracks"].items()},
-                "sections": v["sections"], "form": v["form"]} for k, v in STYLES.items()}
+                "sections": v["sections"], "form": v["form"],
+                **({"tala": v["tala"], "theka": v["theka"]} if "tala" in v else {})} for k, v in STYLES.items()}
 
 
 def arrange(style, key="E", tempo=None, grit=None, title=None, chords=None, form=None,
@@ -155,8 +174,10 @@ def arrange(style, key="E", tempo=None, grit=None, title=None, chords=None, form
         if not isinstance(p, (str, list)):
             raise ValueError(f"chords for {n!r}: a string like 'I % IV V7' or a list of bars")
         secs[n] = chords_in(p, key)
+    drums = any(t["part"] == "drums" for t in tracks.values())
     s = {"title": title or f"{style} in {key}", "tempo": tempo, "beats_per_bar": r["beats_per_bar"],
-         "swing": r["swing"], "key": key, "count_in_bars": 1, "seed": seed, "style": style, "grit": grit,
+         **({"tala": r["tala"]} if "tala" in r else {}),
+         "swing": r["swing"], "key": key, "count_in_bars": 1 if drums else 0, "seed": seed, "style": style, "grit": grit,
          "tracks": tracks, "sections": [{"name": n, "chords": c} for n, c in secs.items()],
          "form": form or [f for f in r["form"] if f in secs] or list(secs)}
     sc.check(copy.deepcopy(s))                            # report bad chords plainly, before writing a lead

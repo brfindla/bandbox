@@ -48,16 +48,55 @@ bandbox does not sing. A lead instrument stands in for the voice: the style's ow
 
 (The lyrics are from "Lights Out" by Brian Findlay, used with permission.)
 
+## Example 3: tabla, in bols
+
+Hindustani rhythm runs in cycles (tala), not bars of four. bandbox knows four:
+- teentaal: 16 beats, 4+4+4+4
+- keherwa: 8 beats, 4+4
+- dadra: 6 beats, 3+3
+- rupak: 7 beats, 3+2+2; it starts on khali
+
+A model writes the groove the way a tabla player says it, in bols, and bandbox plays each bol on
+the bayan (the left-hand bass drum), the dayan (the right-hand treble drum) or both together:
+
+```text
+dha dhin dhin dha | dha dhin dhin dha | dha tin tin ta | ta dhin dhin dha
+```
+
+That is the teentaal theka, the cycle's standard basic pattern (some teachers write the third
+vibhag `na tin tin ta`). `arrange(style="teentaal")` plays
+it with a tanpura-like sitar drone, and the dayan is tuned to the key note. For your own groove,
+give a score a `"tala"`, add a track `{"instrument": "tabla", "part": "tabla"}`, and write each
+section's `"bols"`. `songs/teentaal_tihai.json` plays four cycles of theka and then a tihai: one
+phrase played three times, its last stroke landing on sam, beat 1 of the cycle. `render` writes a
+bol sheet beside the MP3.
+
+How it's written:
+- one word is one beat (matra)
+- `dha.ge` splits a beat
+- `-` is silence
+- `tirakita` shares its beat among its four strokes
+- `|` marks a vibhag, and bandbox checks it against the tala
+
+`list_instruments` lists every bol and what it plays. The tables are data, in `bandbox/tabla.json`.
+The thekas are the standard ones of Hindustani music, as they are commonly taught and printed.
+Clap signs: X is sam, a number is tali (clapped) and 0 is khali (a wave).
+
+**The tabla support has not yet been checked by a tabla player.** Corrections to the bols, thekas
+or strokes are welcome: please open an issue.
+
 ## What is ours and what is borrowed
 
 This repository is bandbox's own code only (MIT): the MCP server, the genre recipes, the
 arranger, the lyric layout and tune writer, the score format, the rhythm styles, the mixer and
-drive, the drum sampler, the beat finder and hum-to-notes.
+drive, the drum sampler, the tala and bol tables, the tabla sampler, the beat finder and
+hum-to-notes.
 
-Four free third-party works are **not** included:
+These free third-party works are **not** included:
 - the sound engine, FluidSynth
 - two instrument sets, GeneralUser GS and MuseScore General
 - the drum kit, Gogodze Phu Vol II by Karoryfer Samples
+- tabla strokes from Freesound: "tabla bols" by mmiron (CC0) and "Tabla Strokes" by ajaysm (CC BY 4.0)
 
 The fetch script downloads each one from its original source and checks its SHA-256.
 [THIRD_PARTY.md](THIRD_PARTY.md) lists the versions, licences, hashes and credit lines.
@@ -96,14 +135,14 @@ claude mcp add bandbox -s user -e PYTHONPATH=<bandbox folder> -- <bandbox folder
 
 | Tool | Does |
 |---|---|
-| `list_styles` | genre recipes: trucker, boom_chicka, outlaw, rockabilly, blues_shuffle, country_waltz. Each gives tempo, beat, bass, comp, instruments, grit, chords and form |
+| `list_styles` | genre recipes: trucker, boom_chicka, outlaw, rockabilly, blues_shuffle, country_waltz, and the talas teentaal, keherwa, dadra, rupak. Each gives tempo, beat, bass, comp, instruments, grit, chords and form; a tala also gives its theka |
 | `arrange` | plain brief → full score from a recipe → rendered track |
 | `set_lyrics` | lyrics → syllables placed on beats, to check before writing a tune |
 | `melody_options` | lyrics → up to three different tunes, each rendered, plus a lyric sheet |
-| `list_instruments` | instrument names, styles and chord types, and what the chosen SoundFont really has |
+| `list_instruments` | instrument names, styles and chord types, what the chosen SoundFont really has, and the talas and tabla bols |
 | `write_score` | checks a score you wrote by hand and saves it as `songs/<name>.json`; reports every error at once |
 | `get_score` | reads a saved score back |
-| `render` | score → `out/<name>/mix.mp3` + `stems/*.wav` |
+| `render` | score → `out/<name>/mix.mp3` + `stems/*.wav` (+ `bols.html` when there is tabla) |
 | `mix` | re-balances the last render from its stems (level in dB, pan, drive, mute) without re-rendering |
 | `analyse_beat` | clap or tap into a WAV; get the tempo and the hit times |
 | `hum_to_notes` | hum a tune (one voice) into a WAV; get lead notes ready for a score |
@@ -137,10 +176,11 @@ claude mcp add bandbox -s user -e PYTHONPATH=<bandbox folder> -- <bandbox folder
   - Notes: `E4` (C4 = middle C), `F#3`, `Bb2`.
   - `r` is a rest, and `+` plays two notes together.
 - **parts and styles**:
-  - comp: `boom_chick`, `strum`, `train`, `sustain`, `arpeggio`, `waltz`
+  - comp: `boom_chick`, `strum`, `train`, `sustain`, `arpeggio`, `waltz`, `drone` (tanpura-like)
   - bass: `root_fifth`, `walking`, `root`, `root_eighths`, `waltz`
   - drums: `train`, `boom_chick`, `rock`, `shuffle`, `brush_swing`, `waltz`, `none`
   - lead: plays the notes as written
+  - tabla: `theka` (the tala's own) or `none`; a section's `"bols"` replaces it
 - **drum kits**:
   - General MIDI kits: `standard_kit`, `room_kit`, `power_kit`, `jazz_kit`, `brush_kit`.
   - Sampled `gogodze_kit`: the kit's own default mic blend (close, front, and side and overhead
@@ -149,6 +189,8 @@ claude mcp add bandbox -s user -e PYTHONPATH=<bandbox folder> -- <bandbox folder
   - The sampled kit plays kick, snare, toms and closed hi-hat. Ride, crash, open hat and
     tambourine come from the General MIDI kit, mixed in under it.
 - **beats_per_bar**: 2, 3 or 4 quarter-note beats. `waltz` styles need 3.
+  - With a `"tala"` there are no bars: each chord entry is one whole cycle, and beats_per_bar is the
+    cycle's length (set by the tala).
   - `swing` (0-1) delays the off-beat eighths of every part, lead included.
   - `count_in_bars` is played on the drums track.
 - **pickup** (notes before the bar line): put them at the end of the previous section's lead
